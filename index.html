@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fence Quote Prototype | San Antonio</title>
+<style>
+body{font:16px system-ui;background:#f4f5ee;color:#173a2e;margin:0}main{max-width:880px;margin:auto;padding:25px}section{background:white;border-radius:18px;padding:22px;margin:20px 0}h1{font-size:clamp(36px,7vw,65px);line-height:1.05}h2{margin-top:0}label{display:block;margin:14px 0;font-weight:650}input,select,textarea{display:block;width:100%;box-sizing:border-box;padding:12px;border:1px solid #aabcb0;border-radius:8px;margin-top:6px;font:inherit}input[type=checkbox]{width:auto;display:inline}button{background:#214c39;color:white;padding:13px;border:0;border-radius:9px;cursor:pointer;font:inherit;margin:4px}.styles{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.style{background:#edf0e9;color:#173a2e;border:2px solid #dfe5dc;min-height:105px}.style[aria-pressed=true]{border-color:#145635;background:#d5ead9}.wood{display:block;height:55px;border-radius:6px;background:repeating-linear-gradient(90deg,#c28c5b 0 15px,#815632 15px 17px)}.pine{background:repeating-linear-gradient(90deg,#d8b88b 0 15px,#8b785e 15px 17px)}.horizontal{background:repeating-linear-gradient(0deg,#c28c5b 0 15px,#815632 15px 17px)}.metal{background:repeating-linear-gradient(90deg,#eee 0 16px,#273b36 16px 20px)}#preview{max-width:100%;max-height:250px;display:none}small{color:#65786c}#success{color:#167342;font-weight:bold}
+</style>
+</head>
+<body><main>
+<header><b>FENCECRAFT / SAN ANTONIO</b><small> • CONCEPT PROTOTYPE</small></header>
+<h1>Find your fence.<br>Plan your project.</h1>
+<p>Explore designs, upload a reference image, measure your yard and prepare a quote request.</p>
+<section><h2>1. Pick your fence style</h2><div class="styles">
+<button type="button" class="style" data-style="Cedar privacy" aria-pressed="true"><span class="wood"></span>Cedar privacy</button>
+<button type="button" class="style" data-style="Treated pine" aria-pressed="false"><span class="wood pine"></span>Treated pine</button>
+<button type="button" class="style" data-style="Horizontal wood" aria-pressed="false"><span class="wood horizontal"></span>Horizontal wood</button>
+<button type="button" class="style" data-style="Ornamental metal" aria-pressed="false"><span class="wood metal"></span>Ornamental metal</button>
+</div><p id="chosen">Selected: Cedar privacy</p><small>Images are illustrations, not real supplier products.</small></section>
+<section><h2>2. Upload your fence picture</h2><label>Photo of current fence (JPG/PNG/WebP, up to 8MB)<input type="file" id="photo" accept="image/png,image/jpeg,image/webp"></label><p id="photoMsg"></p><img id="preview" alt="Your chosen fence photo preview"><p><small>Photo preview is local only. AI material recognition is not connected; wood type cannot be reliably confirmed from a picture alone.</small></p></section>
+<section><h2>3. Measure your fence</h2><p>Measure each straight fence run from corner to corner using a tape or measuring wheel. Add the lengths together in feet. Count gates separately.</p>
+<label>Total linear feet<input id="length" type="number" min="1" max="10000" value="120" required></label>
+<label>Height<select id="height"><option value="4">4 ft</option><option value="6" selected>6 ft</option><option value="8">8 ft</option></select></label>
+<label>Number of gates<input id="gates" type="number" min="0" max="50" value="1" required></label>
+<label>Ground slope<select id="slope"><option>Mostly level</option><option>Slight slope</option><option>Steep / uneven</option><option>Not sure</option></select></label>
+<label>Project type<select id="project"><option>New installation</option><option>Replace old fence</option><option>Repair</option></select></label>
+<button type="button" id="review">Review measurements</button><p id="summary" aria-live="polite"></p>
+<small>Pricing requires verified local contractor rates, so no dollar quote is shown in this prototype.</small></section>
+<section><h2>4. Prepare quote request</h2><form id="form">
+<label>Name<input id="name" autocomplete="name" required></label>
+<label>Email<input id="email" type="email" autocomplete="email" required></label>
+<label>Phone<input id="phone" type="tel" autocomplete="tel" required></label>
+<label>Project ZIP<input id="zip" required pattern="[0-9]{5}" maxlength="5" inputmode="numeric"></label>
+<label>Start date<select id="timeline"><option>As soon as possible</option><option>Within 30 days</option><option>1 to 3 months</option><option>Researching</option></select></label>
+<label>Notes<textarea id="notes" rows="3"></textarea></label>
+<label><input type="checkbox" required id="consent"> I understand this is a demo. My request will be downloaded to my device, not sent to a contractor.</label>
+<button type="submit">Download sample request</button></form><p id="success" role="status"></p></section>
+<footer><small>Launch Point AI concept only — no confirmed contractors, server uploads, live booking, AI photo identification or automatic quotes.</small></footer>
+</main>
+<script>
+let style="Cedar privacy",file="";
+const el=id=>document.getElementById(id);
+document.querySelectorAll(".style").forEach(b=>b.onclick=()=>{document.querySelectorAll(".style").forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");style=b.dataset.style;el("chosen").textContent="Selected: "+style});
+el("photo").onchange=e=>{let f=e.target.files[0];if(!f)return;if(!["image/png","image/jpeg","image/webp"].includes(f.type)||f.size>8e6){el("photoMsg").textContent="Choose a supported image smaller than 8MB.";return}file=f.name;let r=new FileReader;r.onload=()=>{el("preview").src=r.result;el("preview").style.display="block"};r.readAsDataURL(f);el("photoMsg").textContent="Local preview: "+file};
+function project(){return {style,lengthFt:+el("length").value,heightFt:+el("height").value,gates:+el("gates").value,slope:el("slope").value,projectType:el("project").value,photoFileName:file||null}}
+function showSummary(){let p=project();if(p.lengthFt<1||p.lengthFt>10000||p.gates<0||p.gates>50){alert("Enter valid length and gates.");return}el("summary").textContent=p.lengthFt+" linear ft • "+p.heightFt+" ft tall • "+p.gates+" gates • "+p.style+" • "+p.slope}
+el("review").onclick=showSummary;
+el("form").onsubmit=e=>{e.preventDefault();if(!el("form").reportValidity())return;let data={demo:true,name:el("name").value,email:el("email").value,phone:el("phone").value,zip:el("zip").value,timeline:el("timeline").value,notes:el("notes").value,project:project()};let url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));let a=document.createElement("a");a.href=url;a.download="fence-quote-demo.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);el("success").textContent="Sample request downloaded. Nothing was sent."};
+</script></body></html>
